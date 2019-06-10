@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+  postgtres:
+    image: postgres:12-beta1-alpine
+    volumes:
+      - $PWD/sql:/docker-entrypoint-initdb.d/
+
+  wallet:
+    build: .
+    ports:
+      - 8080:8080
+    restart: always

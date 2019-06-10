@@ -22,3 +22,8 @@ Being a test task this service is developed with a set of limitations in mind:
 
 * only two accounts can partitcipate in one payment operations (no exchange type orderbook trades)
 * service uses shared database for all instances (SPOF, possible lock contention and performance bottleneck point). Alternative would be distributed consensus based payment operation. But it has a tricky implementation and should be tested VERY extensively because of multitude of failure modes
+* no users, authentication and authorization concept introduced
+* no database schema migration scaffolding
+* database initialisation method (through default postgres image initdb hack) is not production ready
+* no balance history table
+* no delete operations supported
