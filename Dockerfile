@@ -7,4 +7,3 @@ FROM scratch
 EXPOSE 8080
 COPY --from=builder /build/wallet /
 CMD ["/wallet"]
-
