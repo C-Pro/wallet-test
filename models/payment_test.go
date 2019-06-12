@@ -13,7 +13,7 @@ import (
 
 func makeAccount(tx *sql.Tx, currencyID int64, amount string) Account {
 	amountD, _ := decimal.NewFromString(amount)
-	a := Account{CurrencyID: currencyID, Amount: amountD}
+	a := Account{CurrencyID: currencyID, Amount: amountD, Name: randomName()}
 	if err := a.Save(tx); err != nil {
 		// checking error in test helper function does not worth all the fuss
 		panic(fmt.Sprintf("Unexpected error in Account.Save: %v", err))
@@ -194,6 +194,7 @@ func TestMakePaymentParallel(t *testing.T) {
 
 	for j := 0; j < 100; j++ {
 		go func() {
+			defer wg.Done()
 			for i := 0; i < 100; i++ {
 				amount := decimal.New(rand.Int63n(1000), -2)
 				bID := accounts[rand.Int63n(int64(len(accounts)))].ID
@@ -203,7 +204,6 @@ func TestMakePaymentParallel(t *testing.T) {
 					t.Fatalf("Unexpected error in MakePayment: %v", err)
 				}
 			}
-			wg.Done()
 		}()
 	}
 	wg.Wait()
@@ -212,6 +212,7 @@ func TestMakePaymentParallel(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error in db.Begin(): %v", err)
 	}
+	defer tx.Rollback()
 
 	sumUSD := decimal.Zero
 	sumRUB := decimal.Zero
@@ -237,8 +238,6 @@ func TestMakePaymentParallel(t *testing.T) {
 	if !sumRUB.Equals(expRUB) {
 		t.Errorf("Sum RUB is expected to be 600, but got %s", sumRUB)
 	}
-
-	tx.Commit()
 }
 
 func BenchmarkMakePaymentParallel(b *testing.B) {

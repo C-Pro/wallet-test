@@ -1,3 +1,13 @@
+# github.com/go-kit/kit v0.8.0
+github.com/go-kit/kit/endpoint
+github.com/go-kit/kit/transport/http
+github.com/go-kit/kit/log
+# github.com/go-logfmt/logfmt v0.4.0
+github.com/go-logfmt/logfmt
+# github.com/gorilla/mux v1.7.2
+github.com/gorilla/mux
+# github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515
+github.com/kr/logfmt
 # github.com/lib/pq v1.1.1
 github.com/lib/pq
 github.com/lib/pq/oid

@@ -22,7 +22,7 @@ var (
 type Payment struct {
 	ID                 int64
 	CurrencyID         int64
-	CurrencyName       string
+	CurrencyName       string `json:"currency_name,omitempty"`
 	Amount             decimal.Decimal
 	BuyerAccountID     int64
 	SellerAccountID    int64

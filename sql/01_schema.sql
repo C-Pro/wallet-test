@@ -12,6 +12,7 @@ comment on table currencies is 'Currencies dictionary';
 
 create table accounts (
     id bigserial primary key,
+    name varchar not null unique,
     currency_id integer not null references currencies(id),
     amount numeric(30,15) not null, -- crazy magnitude and precision because crypto 🤑
     constraint accounts_balance_check check (amount >= 0)

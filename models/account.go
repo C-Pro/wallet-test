@@ -10,6 +10,7 @@ import (
 // Account is a representation of a particular account balance in currency
 type Account struct {
 	ID           int64
+	Name         string
 	CurrencyID   int64
 	CurrencyName string
 	Amount       decimal.Decimal
@@ -21,7 +22,8 @@ func GetAccounts(tx *sql.Tx) ([]Account, error) {
 	query := `select a.id,
 					 a.currency_id,
 					 c.name,
-					 a.amount
+					 a.amount,
+					 a.name
 				from accounts a
 				join currencies c on (a.currency_id = c.id)
 				order by a.id`
@@ -38,6 +40,7 @@ func GetAccounts(tx *sql.Tx) ([]Account, error) {
 			&account.CurrencyID,
 			&account.CurrencyName,
 			&account.Amount,
+			&account.Name,
 		)
 		if err != nil {
 			// If it was a context timeout, return context error
@@ -56,15 +59,16 @@ func GetAccounts(tx *sql.Tx) ([]Account, error) {
 // otherwise existing record is updated
 func (a *Account) Save(tx *sql.Tx) error {
 	query := `update accounts
-			  set amount = $1
-			  where id = $2
+			  set amount = $1,
+			      name = $2
+			  where id = $3
 			  returning id`
-	params := []interface{}{a.Amount, a.ID}
+	params := []interface{}{a.Amount, a.Name, a.ID}
 	if a.ID == 0 {
-		query = `insert into accounts(currency_id, amount)
-			  values($1, $2)
+		query = `insert into accounts(currency_id, amount, name)
+			  values($1, $2, $3)
 			  returning id`
-		params = []interface{}{a.CurrencyID, a.Amount}
+		params = []interface{}{a.CurrencyID, a.Amount, a.Name}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
@@ -86,7 +90,8 @@ func GetAccount(tx *sql.Tx, id int64) (Account, error) {
 	query := `select a.id,
 					 a.currency_id,
 					 c.name,
-					 a.amount
+					 a.amount,
+					 a.name
 				from accounts a
 				join currencies c on (a.currency_id = c.id)
 				where a.id = $1`
@@ -95,7 +100,8 @@ func GetAccount(tx *sql.Tx, id int64) (Account, error) {
 	err := tx.QueryRowContext(ctx, query, id).Scan(&account.ID,
 		&account.CurrencyID,
 		&account.CurrencyName,
-		&account.Amount)
+		&account.Amount,
+		&account.Name)
 	if err != nil {
 		// If it was a context timeout, return context error
 		if ctx.Err() != nil {

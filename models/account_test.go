@@ -1,14 +1,23 @@
 package models
 
 import (
+	"fmt"
+	"math/rand"
 	"testing"
 
 	"github.com/shopspring/decimal"
 )
 
+var counter int64
+
+func randomName() string {
+	counter++
+	return fmt.Sprintf("account%d%d", counter, rand.Int63n(100000000))
+}
+
 func TestSaveAccount(t *testing.T) {
 	amount, _ := decimal.NewFromString("123.321")
-	a := &Account{ID: 0, CurrencyID: 1, Amount: amount}
+	a := &Account{ID: 0, CurrencyID: 1, Amount: amount, Name: randomName()}
 	tx, err := db.Begin()
 	if err != nil {
 		t.Fatalf("Unexpected error in db.Begin(): %v", err)
@@ -75,7 +84,7 @@ func TestGetAccounts(t *testing.T) {
 	accNumber := 100
 
 	for i := 0; i < accNumber; i++ {
-		a := &Account{CurrencyID: 1, Amount: amount}
+		a := &Account{CurrencyID: 1, Amount: amount, Name: randomName()}
 		// insert new
 		if err := a.Save(tx); err != nil {
 			t.Fatalf("Unexpected error in Account.Save: %v", err)
