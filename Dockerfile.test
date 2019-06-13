@@ -1,0 +1,4 @@
+FROM golang:1.12.5-alpine3.9
+ADD . /build
+WORKDIR /build
+ENTRYPOINT GO111MODULE=on CGO_ENABLED=0 go test -v -mod=vendor ./...
