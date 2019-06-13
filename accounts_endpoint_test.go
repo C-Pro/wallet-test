@@ -27,9 +27,9 @@ func URL(route string) string {
 func addTestAccount(t *testing.T, name string, amount decimal.Decimal) {
 	c := http.DefaultClient
 	req := []byte(fmt.Sprintf(`{
-		"name": "%s",
-		"amount": "%s",
-		"currency_id": 3
+		"Name": "%s",
+		"Amount": "%s",
+		"CurrencyId": 3
 	}`, name, amount))
 	res, _ := c.Post(URL("/accounts"),
 		"Application/json",

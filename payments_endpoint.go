@@ -9,13 +9,13 @@ import (
 )
 
 type getPaymentsResponse struct {
-	Payments []models.Payment `json:"payments,omitempty"`
-	Error    string           `json:"error,omitempty"`
+	Payments []models.Payment `json:"Payments,omitempty"`
+	Error    string           `json:"Error,omitempty"`
 }
 
 type makePaymentRequest struct {
-	BuyerAccountID  int64 `json:"buyer_account_id"`
-	SellerAccountID int64 `json:"seller_account_id"`
+	BuyerAccountID  int64
+	SellerAccountID int64
 	Amount          decimal.Decimal
 }
 

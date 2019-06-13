@@ -9,8 +9,8 @@ import (
 )
 
 type getAccountsResponse struct {
-	Accounts []models.Account `json:"accounts,omitempty"`
-	Error    string           `json:"error,omitempty"`
+	Accounts []models.Account `json:"Accounts,omitempty"`
+	Error    string           `json:"Error,omitempty"`
 }
 
 type getAccountRequest struct {
@@ -18,12 +18,12 @@ type getAccountRequest struct {
 }
 
 type errorResponse struct {
-	Error string `json:"error,omitempty"`
+	Error string `json:"Error,omitempty"`
 }
 
 type createAccountRequest struct {
 	Name       string
-	CurrencyID int64 `json:"currency_id"`
+	CurrencyID int64
 	Amount     decimal.Decimal
 }
 

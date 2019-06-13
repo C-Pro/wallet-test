@@ -6,14 +6,14 @@ Wallet service stores accounts' balances and allows to make payments between the
 
 Accounts can be identified uniquely and have currency and amount assigned to them.
 
-Two accounts (current limitation) can participate in a payment operation where one account is a buyer (loses amount) and other is a seller (gains amount). Amount gained is equal to amount lost. Payment operation can be performed only when buyer has enough money (amount greater or equal to payment amount) in a payment currency.
+Two accounts (current limitation) can participate in a payment operation where one account is a buyer (loses amount) and another is a seller (gains amount). Amount gained is equal to amount lost. Payment operation can be performed only when buyer has enough money (amount greater or equal to payment amount) in a payment currency.
 
 Multiple pairs of accounts can request payment operations at the same time. One account can participate in multiple payment operations at the same time. There should not be any race conditions during multiple parallel operations.
 
 Service should provide HTTP API for the following list of operations:
 
 * listing of accounts
-* creating account account
+* creating new account
 * listing of payments
 * making payment
 
@@ -23,16 +23,16 @@ Service should be able to work correctly with multiple instances running behind 
 
 Service provides HTTP JSON API for payments and accounts on port 8080 by default
 
-In case of error service will return json object with `error` string
+In case of error service will return json object with `Error` string
 
 ```json
-{"error":"sql: no rows in result set"}
+{"Error":"sql: no rows in result set"}
 ```
 
 No proper error handling or human-readable messages are implemented yet.
 
 
-### Methods
+### API Methods
 
 * `GET http://localhost:8080/accounts`
 
@@ -43,7 +43,7 @@ No proper error handling or human-readable messages are implemented yet.
     Output:
 
     ```json
-    {"accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
+    {"Accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
     ```
 
 * `GET http://localhost:8080/account/{id}`
@@ -65,7 +65,7 @@ No proper error handling or human-readable messages are implemented yet.
     Input:
 
     ```json
-    {"name":"buyer", "amount": "1000", "currency_id": 1}
+    {"Name":"buyer", "Amount": "1000", "CurrencyID": 1}
     ```
 
     Output: empty or error
@@ -80,7 +80,7 @@ No proper error handling or human-readable messages are implemented yet.
     Output:
 
     ```json
-    {"payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+    {"Payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
     ```
 
 
@@ -91,13 +91,13 @@ No proper error handling or human-readable messages are implemented yet.
     Input:
 
     ```json
-    {"buyer_account_id":1, "seller_account_id":2, "amount": 500.1}
+    {"BuyerAccountID":1, "SellerAccountID":2, "Amount": 500.1}
     ```
 
     Output:
 
     ```json
-    {"payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+    {"Payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
     ```
 
 ## Building and running the service
@@ -125,10 +125,10 @@ List accounts
 Add two accounts. Wealthy buyer with 1000 BTC balance. And seller w/o any money on BTC account.
 
 ```
-curl -H "content-type: Application/json" -d '{"name":"buyer", "amount": "1000", "currency_id": 1}' http://localhost:8080/accounts
+curl -H "content-type: Application/json" -d '{"Name":"buyer", "Amount": "1000", "CurrencyID": 1}' http://localhost:8080/accounts
 {}
 
-curl -H "content-type: Application/json" -d '{"name":"seller", "amount": 0, "currency_id": 1}' http://localhost:8080/accounts
+curl -H "content-type: Application/json" -d '{"Name":"seller", "Amount": 0, "CurrencyID": 1}' http://localhost:8080/accounts
 {}
 ```
 
@@ -137,12 +137,12 @@ List accounts again
 `curl http://localhost:8080/accounts`
 
 ```json
-{"accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
+{"Accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
 ```
 
 Make payment with 500.1 BTC amount. Buyer balance should decrease and seller balance should increase as a result
 
-`$ curl -H "content-type: Application/json" -d '{"buyer_account_id":1, "seller_account_id":2, "amount": 500.1}' http://localhost:8080/payments`
+`$ curl -H "content-type: Application/json" -d '{"BuyerAccountID":1, "SellerAccountID":2, "Amount": 500.1}' http://localhost:8080/payments`
 
 ```json
 {"ID":1,"CurrencyID":1,"Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}
@@ -153,7 +153,7 @@ List payments. We see our payment now
 `curl http://localhost:8080/payments`
 
 ```json
-{"payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+{"Payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
 ```
 
 Now let's see our seller and buyer accounts balances one by one

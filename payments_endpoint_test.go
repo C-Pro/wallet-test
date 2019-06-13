@@ -42,9 +42,9 @@ func addTestPayment(t *testing.T, amount decimal.Decimal) models.Payment {
 	}
 
 	req := []byte(fmt.Sprintf(`{
-		"buyer_account_id": %d,
-		"seller_account_id": %d,
-		"amount": %s}`,
+		"BuyerAccountID": %d,
+		"SellerAccountID": %d,
+		"Amount": %s}`,
 		buyerAccountID,
 		sellerAccountID,
 		amount))
