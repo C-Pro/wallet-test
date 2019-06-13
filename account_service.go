@@ -24,7 +24,7 @@ func (a *accountService) GetAccounts() ([]models.Account, error) {
 	if err != nil {
 		return []models.Account{}, err
 	}
-	defer tx.Rollback()
+	defer models.RollbackWithLog(tx)
 	return models.GetAccounts(tx)
 }
 
@@ -34,7 +34,7 @@ func (a *accountService) GetAccount(id int64) (models.Account, error) {
 	if err != nil {
 		return models.Account{}, err
 	}
-	defer tx.Rollback()
+	defer models.RollbackWithLog(tx)
 	return models.GetAccount(tx, id)
 }
 
@@ -44,7 +44,7 @@ func (a *accountService) CreateAccount(account models.Account) error {
 	if err != nil {
 		return err
 	}
-	defer tx.Rollback()
+	defer models.RollbackWithLog(tx)
 	if err := account.Save(tx); err != nil {
 		return err
 	}

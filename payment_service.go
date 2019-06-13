@@ -24,7 +24,7 @@ func (p *paymentService) GetPayments() ([]models.Payment, error) {
 	if err != nil {
 		return []models.Payment{}, err
 	}
-	defer tx.Rollback()
+	defer models.RollbackWithLog(tx)
 	return models.GetPayments(tx)
 }
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -123,7 +124,7 @@ func MakePayment(db *sql.DB,
 	if err != nil {
 		return payment, err
 	}
-	defer tx.Rollback()
+	defer RollbackWithLog(tx)
 
 	// lock both accounts
 	if err := lockAccountsForTransaction(tx, buyerAccountID, sellerAccountID); err != nil {
@@ -171,4 +172,11 @@ func MakePayment(db *sql.DB,
 	}
 
 	return payment, tx.Commit()
+}
+
+// RollbackWithLog rolls back transaction and logs error if any. For use in defer statement.
+func RollbackWithLog(tx *sql.Tx) {
+	if err := tx.Rollback(); err != nil {
+		log.Printf("Error on tx.Rollback: %v", err)
+	}
 }
