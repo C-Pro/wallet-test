@@ -176,7 +176,7 @@ func MakePayment(db *sql.DB,
 
 // RollbackWithLog rolls back transaction and logs error if any. For use in defer statement.
 func RollbackWithLog(tx *sql.Tx) {
-	if err := tx.Rollback(); err != nil {
+	if err := tx.Rollback(); err != nil && err != sql.ErrTxDone {
 		log.Printf("Error on tx.Rollback: %v", err)
 	}
 }

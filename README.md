@@ -1,5 +1,6 @@
 # Wallet service
 
+[![pipeline status](https://gitlab.com/C-Pro/wallet-test/badges/master/pipeline.svg)](https://gitlab.com/C-Pro/wallet-test/commits/master)
 
 Wallet service stores accounts' balances and allows to make payments between them.
 
@@ -15,6 +16,46 @@ Service should provide two additional features:
 * listing of payments
 
 Service should be able to work correctly with multiple instances running behind some kind of a load balancer.
+
+## API
+
+Service provides HTTP JSON API for payments and accounts on port 8080 by default
+
+* `GET http://localhost:8080/accounts`
+
+    Lists all accounts in database
+
+    Input: None
+
+    Output:
+
+    ```json
+    {"accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
+    ```
+
+* `GET http://localhost:8080/account/{id}`
+
+    Get specific account info
+
+    Input: No body. Account ID in URL
+
+    Output:
+
+    ```json
+    {"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"499.9"}
+    ```
+
+* `POST http://localhost:8080/accounts`
+
+    Create new account
+
+* `GET http://localhost:8080/payments`
+
+    Lists all payments in database
+
+* `POST http://localhost:8080/payments`
+
+    Makes a new payment
 
 ## Building and running the service
 
@@ -86,6 +127,62 @@ Now let's see our seller and buyer accounts balances one by one
 {"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"500.1"}
 ```
 
+### Running tests
+
+There are tests for models and http API and one benchmark. Tests on models are more elaborate and test payment operation for most error cases and highload situations (100 goroutines with 100 payments each). API tests are just smoke tests to make shure basic operations work as expected.
+
+```
+$ make test
+docker run -d --rm --name pg -p 5432:5432 -v /home/cpro/go/src/github.com/c-pro/wallet-test/sql:/docker-entrypoint-initdb.d postgres:11-alpine
+2d1ce3525f8c60bf8d3850a3bec87a9278c05e0903d2f8a3ec3e9243a118cba4
+sleep 10 # wait for pg to start up
+go test -v -count 1 -race -cover ./...
+=== RUN   TestCreateAccount
+--- PASS: TestCreateAccount (0.01s)
+=== RUN   TestGetAccounts
+--- PASS: TestGetAccounts (0.02s)
+=== RUN   TestGetAccount
+--- PASS: TestGetAccount (0.02s)
+=== RUN   TestMakePayment
+--- PASS: TestMakePayment (0.04s)
+=== RUN   TestGetPayments
+--- PASS: TestGetPayments (0.04s)
+PASS
+coverage: 73.4% of statements
+ok  	github.com/c-pro/wallet-test	1.154s	coverage: 73.4% of statements
+=== RUN   TestSaveAccount
+--- PASS: TestSaveAccount (0.00s)
+=== RUN   TestGetAccount
+--- PASS: TestGetAccount (0.01s)
+=== RUN   TestGetAccounts
+--- PASS: TestGetAccounts (0.08s)
+=== RUN   TestSavePayment
+--- PASS: TestSavePayment (0.00s)
+=== RUN   TestGetPayments
+--- PASS: TestGetPayments (0.00s)
+=== RUN   TestMakePayment
+--- PASS: TestMakePayment (0.02s)
+=== RUN   TestMakePaymentParallel
+--- PASS: TestMakePaymentParallel (8.74s)
+PASS
+coverage: 74.1% of statements
+ok  	github.com/c-pro/wallet-test/models	9.880s	coverage: 74.1% of statements
+go test -v -run Bench -bench=. ./...
+PASS
+ok  	github.com/c-pro/wallet-test	0.007s
+goos: linux
+goarch: amd64
+pkg: github.com/c-pro/wallet-test/models
+BenchmarkMakePaymentParallel-8   	    3000	    413359 ns/op
+PASS
+ok  	github.com/c-pro/wallet-test/models	1.406s
+docker rm -f pg
+pg
+```
+
+Benchmark shows about 0.4 ms for payment operation on my notebook, when running 3000 operations on 8 goroutines simultaneously.
+
+
 ### To build image
 
 ```
@@ -125,9 +222,9 @@ Being a test task this service is developed with a set of limitations in mind:
 
 * only two accounts can partitcipate in one payment operations (no exchange type orderbook trades)
 * service uses shared database for all instances (SPOF, possible lock contention and performance bottleneck point). Alternative would be distributed consensus based payment operation. But it has a tricky implementation and should be tested VERY extensively because of multitude of failure modes
+* no proper error handling
 * no users, authentication and authorization concept introduced
 * no proper logging and instrumentation
 * no database schema migration scaffolding
 * database initialization method (through default postgres image initdb hack) is not production ready
-* no balance history table
-* no delete operations supported
+* features missing: paging, search (filters), no balance history, no soft delete operations supported, no API for currencies
