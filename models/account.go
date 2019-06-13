@@ -112,8 +112,8 @@ func GetAccount(tx *sql.Tx, id int64) (Account, error) {
 	return account, nil
 }
 
-// lockAccountsForTransaction aquires advisory lock for pair of accounts.
-// There is no way to aquire lock on two records simultaneously without
+// lockAccountsForTransaction acquires advisory lock for pair of accounts.
+// There is no way to acquire lock on two records simultaneously without
 // succumbing to table level lock (performance hit!) or just retrying in case
 // of a deadlock (ok, but will have nasty messages in postgresql logs)
 func lockAccountsForTransaction(tx *sql.Tx, id1, id2 int64) error {
