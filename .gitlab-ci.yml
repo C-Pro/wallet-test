@@ -18,7 +18,7 @@ test:
     variables:
         POSTGRESCONNSTR: postgres://wallet:wallet@postgres:5432/wallet?sslmode=disable
     script:
-        - apk add --no-cache py-pip
+        - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
         - pip install docker-compose
         - docker-compose up -d postgres
         - docker build -t testimage -f Dockerfile.test .
