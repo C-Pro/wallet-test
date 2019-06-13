@@ -122,7 +122,7 @@ List accounts
 {}
 ```
 
-Add two accounts. Wealthy buyer with 1000 BTC balance. And seller w/o any money on BTC account.
+Add two accounts: buyer with 1000 USD balance and seller with zero balance.
 
 ```
 curl -H "content-type: Application/json" -d '{"Name":"buyer", "Amount": "1000", "CurrencyID": 1}' http://localhost:8080/accounts
@@ -140,7 +140,7 @@ List accounts again
 {"Accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
 ```
 
-Make payment with 500.1 BTC amount. Buyer balance should decrease and seller balance should increase as a result
+Make payment with 500.1 USD amount. Buyer balance should decrease and seller balance should increase as a result
 
 `$ curl -H "content-type: Application/json" -d '{"BuyerAccountID":1, "SellerAccountID":2, "Amount": 500.1}' http://localhost:8080/payments`
 
