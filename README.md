@@ -10,16 +10,29 @@ Two accounts (current limitation) can participate in a payment operation where o
 
 Multiple pairs of accounts can request payment operations at the same time. One account can participate in multiple payment operations at the same time. There should not be any race conditions during multiple parallel operations.
 
-Service should provide two additional features:
+Service should provide HTTP API for the following list of operations:
 
 * listing of accounts
+* creating account account
 * listing of payments
+* making payment
 
 Service should be able to work correctly with multiple instances running behind some kind of a load balancer.
 
 ## API
 
 Service provides HTTP JSON API for payments and accounts on port 8080 by default
+
+In case of error service will return json object with `error` string
+
+```json
+{"error":"sql: no rows in result set"}
+```
+
+No proper error handling or human-readable messages are implemented yet.
+
+
+### Methods
 
 * `GET http://localhost:8080/accounts`
 
@@ -49,13 +62,43 @@ Service provides HTTP JSON API for payments and accounts on port 8080 by default
 
     Create new account
 
+    Input:
+
+    ```json
+    {"name":"buyer", "amount": "1000", "currency_id": 1}
+    ```
+
+    Output: empty or error
+
+
 * `GET http://localhost:8080/payments`
 
     Lists all payments in database
 
+    Input: None
+
+    Output:
+
+    ```json
+    {"payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+    ```
+
+
 * `POST http://localhost:8080/payments`
 
     Makes a new payment
+
+    Input:
+
+    ```json
+    {"buyer_account_id":1, "seller_account_id":2, "amount": 500.1}
+    ```
+
+    Output:
+
+    ```json
+    {"payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+    ```
 
 ## Building and running the service
 
