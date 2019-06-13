@@ -128,7 +128,7 @@ func lockAccountsForTransaction(tx *sql.Tx, id1, id2 int64) error {
 		}
 		return err
 	}
-	// aquire row level lock anyway
+	// acquire row level lock anyway
 	query = `select * from accounts
 			   where id in ($1, $2)
 			  for update`

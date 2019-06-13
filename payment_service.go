@@ -29,6 +29,8 @@ func (p *paymentService) GetPayments() ([]models.Payment, error) {
 }
 
 // MakePayment makes payment from one account to another
-func (p *paymentService) MakePayment(buyerAccountID, sellerAccountID int64, amount decimal.Decimal) (models.Payment, error) {
+func (p *paymentService) MakePayment(buyerAccountID,
+	sellerAccountID int64,
+	amount decimal.Decimal) (models.Payment, error) {
 	return models.MakePayment(p.db, buyerAccountID, sellerAccountID, amount)
 }

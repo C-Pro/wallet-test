@@ -102,7 +102,7 @@ func (p *Payment) Save(tx *sql.Tx) error {
 }
 
 // MakePayment makes atomic payment operation for given amount between seller and buyer accounts
-// Prior to commencing operation lock on both accounts is aquired and some sanity checks are performed
+// Prior to commencing operation lock on both accounts is acquired and some sanity checks are performed
 func MakePayment(db *sql.DB,
 	buyerAccountID,
 	sellerAccountID int64,
