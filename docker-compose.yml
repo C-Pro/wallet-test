@@ -10,5 +10,7 @@ services:
         environment:
             - POSTGRESCONNSTR=postgres://wallet:wallet@postgres:5432/wallet?sslmode=disable
         build: .
+        ports:
+            - 8080:8080
         depends_on:
             - postgres

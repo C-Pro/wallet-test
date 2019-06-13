@@ -10,17 +10,34 @@ import (
 )
 
 const queryTimeout = time.Second * 5
+const numRetries = 5
+const retryDelay = time.Second * 2
 
 // OpenDB connects to postgresql database
 func OpenDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("postgres", dsn)
-	if err != nil {
-		return nil, err
+	var (
+		db  *sql.DB
+		err error
+	)
+
+	for i := 0; i < numRetries; i++ {
+		db, err = sql.Open("postgres", dsn)
+		if err != nil {
+			time.Sleep(retryDelay)
+			continue
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+		err = db.PingContext(ctx)
+		cancel()
+		if err != nil {
+			time.Sleep(retryDelay)
+			continue
+		}
+		break
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
-	defer cancel()
-	if err := db.PingContext(ctx); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
