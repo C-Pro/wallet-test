@@ -21,10 +21,11 @@ test:
         - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
         - pip install docker-compose
         - docker-compose up -d postgres
-        - docker build -t testimage -f Dockerfile.test
+        - docker build -t testimage -f Dockerfile.test .
         - docker run --rm testimage
     after_script:
         - docker-compose down
+        - docker rmi -f testimage
 
 docker:
     image: docker
