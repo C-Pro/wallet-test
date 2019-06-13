@@ -1,13 +1,14 @@
 version: "2"
 
 services:
-  postgtres:
-    image: postgres:12-beta1-alpine
-    volumes:
-      - $PWD/sql:/docker-entrypoint-initdb.d/
+    postgres:
+        image: postgres:11-alpine
+        volumes:
+            - $PWD/sql:/docker-entrypoint-initdb.d/
 
-  wallet:
-    build: .
-    ports:
-      - 8080:8080
-    restart: always
+    wallet:
+        environment:
+            - POSTGRESCONNSTR=postgres://wallet:wallet@postgres:5432/wallet?sslmode=disable
+        build: .
+        depends_on:
+            - postgres

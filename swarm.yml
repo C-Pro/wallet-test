@@ -2,7 +2,7 @@ version: "3"
 
 services:
   postgtres:
-    image: postgres:12-beta1-alpine
+    image: postgres:11-alpine
     volumes:
       - $PWD/sql:/docker-entrypoint-initdb.d/
 

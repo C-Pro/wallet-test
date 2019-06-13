@@ -18,7 +18,7 @@ type getAccountRequest struct {
 }
 
 type errorResponse struct {
-	Error string `json:"error"`
+	Error string `json:"error,omitempty"`
 }
 
 type createAccountRequest struct {

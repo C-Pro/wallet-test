@@ -112,14 +112,29 @@ func GetAccount(tx *sql.Tx, id int64) (Account, error) {
 	return account, nil
 }
 
-// lockAccountsForTransaction lock pair of accounts synchronously to avoid deadlocks
+// lockAccountsForTransaction aquires advisory lock for pair of accounts.
+// There is no way to aquire lock on two records simultaneously without
+// succumbing to table level lock (performance hit!) or just retrying in case
+// of a deadlock (ok, but will have nasty messages in postgresql logs)
 func lockAccountsForTransaction(tx *sql.Tx, id1, id2 int64) error {
-	query := `select * from accounts
+	query := `select pg_advisory_xact_lock($1, $2)`
+	ctxAdv, cancelAdv := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancelAdv()
+	_, err := tx.ExecContext(ctxAdv, query, id1, id2)
+	if err != nil {
+		// If it was a context timeout, return context error
+		if ctxAdv.Err() != nil {
+			err = ctxAdv.Err()
+		}
+		return err
+	}
+	// aquire row level lock anyway
+	query = `select * from accounts
 			   where id in ($1, $2)
 			  for update`
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
-	_, err := tx.ExecContext(ctx, query, id1, id2)
+	_, err = tx.ExecContext(ctx, query, id1, id2)
 	if err != nil {
 		// If it was a context timeout, return context error
 		if ctx.Err() != nil {

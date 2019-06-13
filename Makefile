@@ -1,5 +1,10 @@
+.PHONY: docker up down test-only bench test
+
+docker:
+	docker build -t gitlab.com/c-pro/wallet-test .
+
 test-env-up:
-	docker run -d --rm --name pg -p 5432:5432 -v $(shell pwd)/sql:/docker-entrypoint-initdb.d postgres:12-beta1-alpine
+	docker run -d --rm --name pg -p 5432:5432 -v $(shell pwd)/sql:/docker-entrypoint-initdb.d postgres:11-alpine
 	sleep 10 # wait for pg to start up
 
 test-env-down:

@@ -12,7 +12,7 @@ var counter int64
 
 func randomName() string {
 	counter++
-	return fmt.Sprintf("account%d%d", counter, rand.Int63n(100000000))
+	return fmt.Sprintf("account%d%010d", counter, rand.Int63n(100000000))
 }
 
 func TestSaveAccount(t *testing.T) {
@@ -74,6 +74,7 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestGetAccounts(t *testing.T) {
+	cleanDb(t)
 	amount, _ := decimal.NewFromString("567.765")
 	tx, err := db.Begin()
 	if err != nil {

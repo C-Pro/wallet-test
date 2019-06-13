@@ -52,7 +52,7 @@ func makeHandlers(db *sql.DB) http.Handler {
 	r := mux.NewRouter()
 	r.Handle("/accounts", getAccountsHandler).Methods("GET")
 	r.Handle("/account/{id}", getAccountHandler).Methods("GET")
-	r.Handle("/account", createAccountHandler).Methods("POST")
+	r.Handle("/accounts", createAccountHandler).Methods("POST")
 	r.Handle("/payments", getPaymentsHandler).Methods("GET")
 	r.Handle("/payments", makePaymentsHandler).Methods("POST")
 	return r
