@@ -80,7 +80,7 @@ No proper error handling or human-readable messages are implemented yet.
     Output:
 
     ```json
-    {"Payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+    {"Payments":[{"ID":1,"CurrencyID":1,"CurrencyName":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
     ```
 
 
@@ -97,7 +97,7 @@ No proper error handling or human-readable messages are implemented yet.
     Output:
 
     ```json
-    {"Payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+    {"Payments":[{"ID":1,"CurrencyID":1,"CurrencyName":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
     ```
 
 ## Building and running the service
@@ -153,7 +153,7 @@ List payments. We see our payment now
 `curl http://localhost:8080/payments`
 
 ```json
-{"Payments":[{"ID":1,"CurrencyID":1,"currency_name":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
+{"Payments":[{"ID":1,"CurrencyID":1,"CurrencyName":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
 ```
 
 Now let's see our seller and buyer accounts balances one by one
