@@ -263,7 +263,7 @@ Successfully tagged gitlab.com/c-pro/wallet-test:latest
 
 Being a test task this service is developed with a set of limitations in mind:
 
-* only two accounts can partitcipate in one payment operations (no exchange type orderbook trades)
+* only two accounts can partitcipate in one payment operation (no exchange type orderbook trades)
 * service uses shared database for all instances (SPOF, possible lock contention and performance bottleneck point). Alternative would be distributed consensus based payment operation. But it has a tricky implementation and should be tested VERY extensively because of multitude of failure modes
 * no proper error handling
 * no users, authentication and authorization concept introduced
