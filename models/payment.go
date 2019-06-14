@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/shopspring/decimal"
@@ -17,6 +18,7 @@ var (
 	ErrPaymentNotUpdatable = errors.New("Payments can not be updated")
 	ErrNoPaymentToSelf     = errors.New("Could not make payment to self")
 	ErrNonPositiveAmount   = errors.New("Amount should be positive")
+	ErrLockFailed          = errors.New("Failed to acquire lock on accounts")
 )
 
 // Payment is a representation of a payment operation, transferring amount from buyer account to seller account
@@ -120,16 +122,42 @@ func MakePayment(db *sql.DB,
 		return payment, ErrNonPositiveAmount
 	}
 
-	tx, err := db.Begin()
-	if err != nil {
-		return payment, err
-	}
-	defer RollbackWithLog(tx)
+	var tx *sql.Tx
 
-	// lock both accounts
-	if err := lockAccountsForTransaction(tx, buyerAccountID, sellerAccountID); err != nil {
-		return payment, err
+	// try to lock both accounts
+	numRetries := uint(5)
+	for tryNum := uint(1); tryNum <= numRetries; tryNum++ {
+		var err error
+		tx, err = db.Begin()
+		if err != nil {
+			return payment, err
+		}
+
+		// lock both accounts
+		success, err := lockAccountsForTransaction(tx, buyerAccountID, sellerAccountID)
+		if err != nil || !success {
+			RollbackWithLog(tx)
+		}
+
+		if err != nil {
+			return payment, err
+		}
+
+		// if lock for both accounts is acquired, proceed
+		if success {
+			break
+		}
+
+		// failed to aquire after numRetries
+		if tryNum == numRetries {
+			return payment, ErrLockFailed
+		}
+
+		interval := (1<<tryNum)*5 + rand.Intn((1<<tryNum)*5)
+		time.Sleep(time.Millisecond * time.Duration(interval))
 	}
+
+	defer RollbackWithLog(tx)
 
 	buyer, err := GetAccount(tx, buyerAccountID)
 	if err != nil {

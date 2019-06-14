@@ -86,10 +86,16 @@ func TestGetPayments(t *testing.T) {
 
 func cleanDb(t *testing.T) {
 	if _, err := db.Exec("delete from payments"); err != nil {
+		if t == nil {
+			panic("Failed to clean up payments table")
+		}
 		t.Fatalf("Failed to clean up payments table")
 	}
 
 	if _, err := db.Exec("delete from accounts"); err != nil {
+		if t == nil {
+			panic("Failed to clean up accounts table")
+		}
 		t.Fatalf("Failed to clean up accounts table")
 	}
 }
@@ -241,6 +247,8 @@ func TestMakePaymentParallel(t *testing.T) {
 }
 
 func BenchmarkMakePaymentParallel(b *testing.B) {
+	cleanDb(nil)
+	defer cleanDb(nil)
 	tx, err := db.Begin()
 	if err != nil {
 		b.Fatalf("Unexpected error in db.Begin(): %v", err)

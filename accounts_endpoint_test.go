@@ -34,20 +34,13 @@ func addTestAccount(t *testing.T, name string, amount decimal.Decimal) {
 	res, _ := c.Post(URL("/accounts"),
 		"Application/json",
 		bytes.NewBuffer(req))
-	b, err := ioutil.ReadAll(res.Body)
+	_, err := ioutil.ReadAll(res.Body)
 	res.Body.Close()
 	if res.StatusCode == 200 {
 		return
 	}
 	if err != nil {
 		t.Fatal(err)
-	}
-	var errResp errorResponse
-	if err := json.Unmarshal(b, &errResp); err != nil {
-		t.Fatal(err)
-	}
-	if errResp.Error != "" {
-		t.Fatalf("POST /accounts returned error: %s", errResp.Error)
 	}
 }
 
@@ -83,9 +76,6 @@ func TestGetAccounts(t *testing.T) {
 
 	accountsResp := getAccountsResponse{}
 	getSomething(t, "/accounts", &accountsResp)
-	if accountsResp.Error != "" {
-		t.Fatalf("GET /accounts returned unexpected error: %s", accountsResp.Error)
-	}
 	if len(accountsResp.Accounts) == 0 {
 		t.Fatal("GET /accounts returned empty result")
 	}
@@ -108,9 +98,6 @@ func TestGetAccount(t *testing.T) {
 
 	accountsResp := getAccountsResponse{}
 	getSomething(t, "/accounts", &accountsResp)
-	if accountsResp.Error != "" {
-		t.Fatalf("GET /accounts returned unexpected error: %s", accountsResp.Error)
-	}
 	if len(accountsResp.Accounts) == 0 {
 		t.Fatal("GET /accounts returned empty result")
 	}

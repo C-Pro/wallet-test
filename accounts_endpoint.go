@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/c-pro/wallet-test/models"
 	"github.com/go-kit/kit/endpoint"
@@ -10,7 +11,6 @@ import (
 
 type getAccountsResponse struct {
 	Accounts []models.Account `json:"Accounts,omitempty"`
-	Error    string           `json:"Error,omitempty"`
 }
 
 type getAccountRequest struct {
@@ -19,6 +19,7 @@ type getAccountRequest struct {
 
 type errorResponse struct {
 	Error string `json:"Error,omitempty"`
+	Code  int    `json:"-"`
 }
 
 type createAccountRequest struct {
@@ -31,9 +32,9 @@ func makeGetAccountsEndpoint(svc AccountService) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		accounts, err := svc.GetAccounts()
 		if err != nil {
-			return getAccountsResponse{accounts, err.Error()}, nil
+			return errorResponse{err.Error(), 500}, nil
 		}
-		return getAccountsResponse{accounts, ""}, nil
+		return getAccountsResponse{accounts}, nil
 	}
 }
 
@@ -42,7 +43,10 @@ func makeGetAccountEndpoint(svc AccountService) endpoint.Endpoint {
 		req := request.(getAccountRequest)
 		account, err := svc.GetAccount(req.AccountID)
 		if err != nil {
-			return errorResponse{err.Error()}, nil
+			if err == sql.ErrNoRows {
+				return errorResponse{"Account not found", 404}, nil
+			}
+			return errorResponse{err.Error(), 500}, nil
 		}
 		return account, nil
 	}
@@ -55,8 +59,8 @@ func makeCreateAccountEndpoint(svc AccountService) endpoint.Endpoint {
 			CurrencyID: req.CurrencyID,
 			Amount:     req.Amount})
 		if err != nil {
-			return errorResponse{err.Error()}, err
+			return errorResponse{err.Error(), 500}, err
 		}
-		return errorResponse{}, nil
+		return struct{}{}, nil
 	}
 }

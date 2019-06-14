@@ -21,9 +21,6 @@ func addTestPayment(t *testing.T, amount decimal.Decimal) models.Payment {
 
 	accountsResp := getAccountsResponse{}
 	getSomething(t, "/accounts", &accountsResp)
-	if accountsResp.Error != "" {
-		t.Fatalf("GET /accounts returned unexpected error: %s", accountsResp.Error)
-	}
 	if len(accountsResp.Accounts) == 0 {
 		t.Fatal("GET /accounts returned empty result")
 	}
@@ -85,9 +82,6 @@ func TestGetPayments(t *testing.T) {
 
 	paymentsResp := getPaymentsResponse{}
 	getSomething(t, "/payments", &paymentsResp)
-	if paymentsResp.Error != "" {
-		t.Fatalf("GET /peyments returned unexpected error: %s", paymentsResp.Error)
-	}
 	if len(paymentsResp.Payments) == 0 {
 		t.Fatal("GET /payments returned empty result")
 	}

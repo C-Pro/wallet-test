@@ -64,6 +64,10 @@ func decodeNilRequest(_ context.Context, r *http.Request) (interface{}, error) {
 }
 
 func encodeResponse(_ context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Add("Content-Type", "application/json")
+	if errResp, ok := response.(errorResponse); ok {
+		w.WriteHeader(errResp.Code)
+	}
 	return json.NewEncoder(w).Encode(response)
 }
 
