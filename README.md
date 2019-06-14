@@ -26,17 +26,14 @@ Service provides HTTP JSON API for payments and accounts on port 8080 by default
 In case of error service will return json object with `Error` string
 
 ```json
-{"Error":"sql: no rows in result set"}
+{"Error":"Account not found"}
 ```
-
-No proper error handling or human-readable messages are implemented yet.
-
 
 ### API Methods
 
 * `GET http://localhost:8080/accounts`
 
-    Lists all accounts in database
+    Lists all accounts in the database
 
     Input: None
 
@@ -60,7 +57,7 @@ No proper error handling or human-readable messages are implemented yet.
 
 * `POST http://localhost:8080/accounts`
 
-    Create new account
+    Create a new account
 
     Input:
 
@@ -73,7 +70,7 @@ No proper error handling or human-readable messages are implemented yet.
 
 * `GET http://localhost:8080/payments`
 
-    Lists all payments in database
+    Lists all payments in the database
 
     Input: None
 
@@ -124,23 +121,27 @@ List accounts
 
 Add two accounts: buyer with 1000 USD balance and seller with zero balance.
 
-```
-curl -H "content-type: Application/json" -d '{"Name":"buyer", "Amount": "1000", "CurrencyID": 1}' http://localhost:8080/accounts
-{}
+`$ curl -H "content-type: Application/json" -d '{"Name":"buyer", "Amount": "1000", "CurrencyID": 1}' http://localhost:8080/accounts`
 
-curl -H "content-type: Application/json" -d '{"Name":"seller", "Amount": 0, "CurrencyID": 1}' http://localhost:8080/accounts
+```json
+{}
+```
+
+`$ curl -H "content-type: Application/json" -d '{"Name":"seller", "Amount": 0, "CurrencyID": 1}' http://localhost:8080/accounts`
+
+```json
 {}
 ```
 
 List accounts again
 
-`curl http://localhost:8080/accounts`
+`$ curl http://localhost:8080/accounts`
 
 ```json
 {"Accounts":[{"ID":1,"Name":"buyer","CurrencyID":1,"CurrencyName":"USD","Amount":"1000"},{"ID":2,"Name":"seller","CurrencyID":1,"CurrencyName":"USD","Amount":"0"}]}
 ```
 
-Make payment with 500.1 USD amount. Buyer balance should decrease and seller balance should increase as a result
+Make a payment with 500.1 USD amount. Buyer balance should decrease and seller balance should increase as a result
 
 `$ curl -H "content-type: Application/json" -d '{"BuyerAccountID":1, "SellerAccountID":2, "Amount": 500.1}' http://localhost:8080/payments`
 
@@ -150,7 +151,7 @@ Make payment with 500.1 USD amount. Buyer balance should decrease and seller bal
 
 List payments. We see our payment now
 
-`curl http://localhost:8080/payments`
+`$ curl http://localhost:8080/payments`
 
 ```json
 {"Payments":[{"ID":1,"CurrencyID":1,"CurrencyName":"USD","Amount":"500.1","BuyerAccountID":1,"SellerAccountID":2,"OperationTimestamp":"2019-06-13T03:21:29.933672Z"}]}
@@ -172,7 +173,14 @@ Now let's see our seller and buyer accounts balances one by one
 
 ### Running tests
 
-There are tests for models and http API and one benchmark. Tests on models are more elaborate and test payment operation for most error cases and highload situations (100 goroutines with 100 payments each). API tests are just smoke tests to make shure basic operations work as expected.
+There are tests for models, HTTP API tests and one benchmark. Tests on models are more elaborate and do test payment operation for most error cases and highload situations.
+
+`TestMakePaymentParallel` test creates 1 account with 500USD and 1 account with 600RUB. Then another 98 accounts with zero balances, half of them in RUB and half in USD. Then 100 goroutines launch and each does 100 payments with random amounts between two accounts selected at random at each iteration. Obviously many operations fail because of account currencies mismatch or insufficient balance, but many still do transfer money between corresponding accounts.
+When all goroutines finish, accounts balances are summed up and checked if their collective balance equals 500USD and 600RUB correspondingly.
+
+API tests are just smoke tests to make shure basic operations work as expected.
+
+You need to have `mak`e and `go` installed to run tests.
 
 ```
 $ make test
@@ -265,9 +273,9 @@ Being a test task this service is developed with a set of limitations in mind:
 
 * only two accounts can partitcipate in one payment operation (no exchange type orderbook trades)
 * service uses shared database for all instances (SPOF, possible lock contention and performance bottleneck point). Alternative would be distributed consensus based payment operation. But it has a tricky implementation and should be tested VERY extensively because of multitude of failure modes
-* no proper error handling
-* no users, authentication and authorization concept introduced
 * no proper logging and instrumentation
+* errors are not wrapped with origin function names etc.
+* no users, authentication and authorization concepts introduced
 * no database schema migration scaffolding
 * database initialization method (through default postgres image initdb hack) is not production ready
 * features missing: paging, search (filters), no balance history, no soft delete operations supported, no API for currencies
