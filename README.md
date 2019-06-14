@@ -180,7 +180,7 @@ When all goroutines finish, accounts balances are summed up and checked if their
 
 API tests are just smoke tests to make shure basic operations work as expected.
 
-You need to have `mak`e and `go` installed to run tests.
+You need to have `make` and `go` installed to run tests.
 
 ```
 $ make test
