@@ -118,13 +118,31 @@ func GetAccount(tx *sql.Tx, id int64) (Account, error) {
 // the accounts for no reason.
 func lockAccountsForTransaction(tx *sql.Tx, id1, id2 int64) (bool, error) {
 	count := 0
-	query := `select count(*) from
+
+	query := `select count(*) from accounts
+			   where id in ($1, $2)`
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	err := tx.QueryRowContext(ctx, query, id1, id2).Scan(&count)
+	if err != nil {
+		// If it was a context timeout, return context error
+		if ctx.Err() != nil {
+			err = ctx.Err()
+		}
+		cancel()
+		return false, err
+	}
+	cancel()
+	if count != 2 {
+		return false, sql.ErrNoRows
+	}
+
+	query = `select count(*) from
 			  (select * from accounts
 			   where id in ($1, $2)
 			  for update skip locked) v`
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel = context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
-	err := tx.QueryRowContext(ctx, query, id1, id2).Scan(&count)
+	err = tx.QueryRowContext(ctx, query, id1, id2).Scan(&count)
 	if err != nil {
 		// If it was a context timeout, return context error
 		if ctx.Err() != nil {
