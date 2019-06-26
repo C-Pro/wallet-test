@@ -125,7 +125,7 @@ func MakePayment(db *sql.DB,
 	var tx *sql.Tx
 
 	// try to lock both accounts
-	numRetries := uint(10)
+	numRetries := uint(15)
 	for tryNum := uint(1); tryNum <= numRetries; tryNum++ {
 		var err error
 		tx, err = db.Begin()
