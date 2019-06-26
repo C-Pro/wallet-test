@@ -17,6 +17,7 @@ test:
         - docker:dind
     variables:
         POSTGRESCONNSTR: postgres://wallet:wallet@postgres:5432/wallet?sslmode=disable
+        DOCKER_HOST: tcp://docker:2375/
     script:
         - docker-compose up -d postgres
         - docker build -t testimage -f Dockerfile.test .
