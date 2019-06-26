@@ -12,14 +12,12 @@ lint:
 
 test:
     stage: test
-    image: docker
+    image: cpro29a/docker-compose-golang
     services:
         - docker:dind
     variables:
         POSTGRESCONNSTR: postgres://wallet:wallet@postgres:5432/wallet?sslmode=disable
     script:
-        - apk add --no-cache py-pip python-dev libffi-dev openssl-dev gcc libc-dev make
-        - pip install docker-compose
         - docker-compose up -d postgres
         - docker build -t testimage -f Dockerfile.test .
         - docker run -e POSTGRESCONNSTR --rm --network=wallet-test_default testimage

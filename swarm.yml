@@ -7,10 +7,10 @@ services:
       - $PWD/sql:/docker-entrypoint-initdb.d/
 
   wallet:
-    build: .
+    image: gitlab.com/c-pro/wallet-test
     ports:
       - 8080:8080
+    environment:
+        - POSTGRESCONNSTR=postgres://wallet:wallet@postgres:5432/wallet?sslmode=disable
     deploy:
       replicas: 4
-      restart-policy:
-        condition: on-failure
